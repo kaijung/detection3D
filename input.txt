@@ -1,1 +1,1 @@
-/Users/andres/Documents/Programming/assembla/detection3D/input/
+/home/pc/文件/detection3D/input/

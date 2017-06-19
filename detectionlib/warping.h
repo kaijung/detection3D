@@ -44,7 +44,7 @@ using namespace cv;
 class Warping
 {
 public:
-    static double rad2Deg(double rad);
+    static double rad2Deg(double rad);//弳度轉換
     static double deg2Rad(double deg);
     
     static void   warpMatrix(Size sz,

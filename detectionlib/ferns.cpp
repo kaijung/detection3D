@@ -35,7 +35,6 @@
 #include <limits>
 
 
-
 const char FernUtils::bits[256][8] = {
     {4,12,20,28,36,44,52,60},
     {4,12,20,28,36,44,52,56},
@@ -566,7 +565,7 @@ bool compareIndexPairs( const  std::pair<uint16_t, uint32_t> &l,
 
 
 /*
- *  Util function to check the homography
+ *  Util function to check the homography//立體空間對應關係
  *  From "Multiple View Geometry"
  *  If the determinant of the top-left 2x2 matrix is > 0 the transformation is orientation
  *  preserving. Else is <0 it's orientation reversing (bad homography).
@@ -597,7 +596,7 @@ bool FernUtils::goodHomography(const cv::Mat &H)
 }
 
 int FernUtils::numInliers(const vector<Point2f> &obj_pts,
-                          const vector<Point2f> &scn_pts)
+                          const vector<Point2f> &scn_pts)//找出好的對應點
 {
     int amountInliers = 0;
     if (obj_pts.size() > MIN_NUM_MATCHES)
@@ -614,7 +613,7 @@ int FernUtils::computeHomography(const vector<Point2f> &obj_pts,
                                  const vector<Point2f> &scn_pts,
                                  const vector<Point2f> &corners,
                                  Mat &H,
-                                 vector<Point2f> &dstCorners)
+                                 vector<Point2f> &dstCorners)//ˊ找特徵點對應關係
 {
     int amountInliers = 0;
     if (obj_pts.size() > MIN_NUM_MATCHES)
@@ -626,7 +625,7 @@ int FernUtils::computeHomography(const vector<Point2f> &obj_pts,
         perspectiveTransform(corners, dstCorners, H);
         bool convex = isContourConvex(dstCorners);
         bool goodH  = FernUtils::goodHomography(H);
-        amountInliers = (convex & goodH)? amountInliers : 0;
+        amountInliers = (convex & goodH)? amountInliers : 0;//如果是好的點就不保留amountInliers
     }
 #ifdef STATS
     cout << "Homography inliers :" << amountInliers << " Matches: " << obj_pts.size() << endl;
@@ -635,7 +634,7 @@ int FernUtils::computeHomography(const vector<Point2f> &obj_pts,
 }
 
 
-bool FernUtils::sortByQueryId(const DMatch &left, const DMatch &right)
+bool FernUtils::sortByQueryId(const DMatch &left, const DMatch &right)//排序，根據序列Id
 {
     if (left.trainIdx == right.trainIdx)
     {
@@ -643,12 +642,12 @@ bool FernUtils::sortByQueryId(const DMatch &left, const DMatch &right)
     }
     else return left.trainIdx < right.trainIdx;
 }
-bool FernUtils::sortByDistance(const DMatch &left, const DMatch &right)
+bool FernUtils::sortByDistance(const DMatch &left, const DMatch &right)//排序，根據距離
 {
     return left.distance < right.distance;
 }
 
-Point FernUtils::pointOnALine(const Vec3f &line, const Point2f &pt)
+Point FernUtils::pointOnALine(const Vec3f &line, const Point2f &pt)//找對應xy關係
 {
     float a = line[0];
     float b = line[1];
@@ -690,7 +689,7 @@ Point FernUtils::twoLinesIntersection(const Point2f &p1,
     return inter;
 }
 
-static void crossProdut(const Vec3f &a, const Vec3f &b, Vec3f &pt)
+static void crossProdut(const Vec3f &a, const Vec3f &b, Vec3f &pt)//外積
 {
     
     pt[0] =    a[1] * b[2] - a[2] * b[1];
@@ -821,9 +820,9 @@ void FernUtils::drawObject(Mat &frameOut,
                  float alpha)
 {
     Point2f center  = FernUtils::twoLinesIntersection(corners[0], corners[2], corners[1], corners[3]);
-    double minR   = FernUtils::radiusOfInscribedCircled(center, corners);
-    Vec3f topLine = FernUtils::getLine(corners[2], corners[3]);
-    Point2f top   = FernUtils::pointOnALine(topLine, center);
+    double minR   = FernUtils::radiusOfInscribedCircled(center, corners);//計算半徑
+    Vec3f topLine = FernUtils::getLine(corners[2], corners[3]);//畫頂線
+    Point2f top   = FernUtils::pointOnALine(topLine, center);//位移頂線
     circle(frameOut, center + shift , minR, color,thickness/2);
     line(frameOut, center + shift, top + shift, topColor, thickness);
     drawPercentCircle(frameOut, center+ shift, minR,percent, alpha);
@@ -831,10 +830,10 @@ void FernUtils::drawObject(Mat &frameOut,
 
 
 void FernUtils::drawPercentCircle(Mat &frameOut,
-                              const Point2f &center,
-                              int radius,
+                              const Point2f &center,//
+                              int radius,//
                               float percent,
-                              float alpha)
+                              float alpha)//旋轉圓圈計算
 {
     int x,y,r2;
     r2 = radius * radius;
@@ -851,79 +850,13 @@ void FernUtils::drawPercentCircle(Mat &frameOut,
         {
             if ( (x * x) + (y * y) < r2 )
             {
-                if (percent >= 12.5 * 0)
-                {
-                    if (center.y - x > frameOut.rows)
-                        continue;
+                if (center.y - x > frameOut.rows)
+                   continue;
                     data = frameOut.ptr<uchar>(center.y - x , center.x + y); //1
                     data[0] = color[0]*alpha + data[0]*(1-alpha);
                     data[1] = color[1]*alpha + data[1]*(1-alpha);
                     data[2] = color[2]*alpha + data[2]*(1-alpha);
-                }
-                if (percent >= 12.5 * 1)
-                {
-
-                    if (center.y - y > frameOut.rows)
-                        continue;
-                    data = frameOut.ptr<uchar>(center.y - y , center.x + x); //2
-                    data[0] = color[0]*alpha + data[0]*(1-alpha);
-                    data[1] = color[1]*alpha + data[1]*(1-alpha);
-                    data[2] = color[2]*alpha + data[2]*(1-alpha);
-                }
-                if (percent >= 12.5 * 2)
-                {
-                    if (center.y + y > frameOut.rows)
-                        continue;
-                    data = frameOut.ptr<uchar>(center.y + y , center.x + x); //3
-                    data[0] = color[0]*alpha + data[0]*(1-alpha);
-                    data[1] = color[1]*alpha + data[1]*(1-alpha);
-                    data[2] = color[2]*alpha + data[2]*(1-alpha);
-                }
-                if (percent >= 12.5 * 3)
-                {
-                    if (center.y + x > frameOut.rows)
-                        continue;
-                    data = frameOut.ptr<uchar>(center.y + x , center.x + y); //4
-                    data[0] = color[0]*alpha + data[0]*(1-alpha);
-                    data[1] = color[1]*alpha + data[1]*(1-alpha);
-                    data[2] = color[2]*alpha + data[2]*(1-alpha);
-                }
-                if (percent >= 12.5 * 4)
-                {
-                    if (center.y + x > frameOut.rows)
-                        continue;
-                    data = frameOut.ptr<uchar>(center.y + x , center.x - y); //5
-                    data[0] = color[0]*alpha + data[0]*(1-alpha);
-                    data[1] = color[1]*alpha + data[1]*(1-alpha);
-                    data[2] = color[2]*alpha + data[2]*(1-alpha);
-                }
-                if (percent >= 12.5 * 5)
-                {
-                    if (center.y + y > frameOut.rows)
-                        continue;
-                    data = frameOut.ptr<uchar>(center.y + y , center.x - x); //6
-                    data[0] = color[0]*alpha + data[0]*(1-alpha);
-                    data[1] = color[1]*alpha + data[1]*(1-alpha);
-                    data[2] = color[2]*alpha + data[2]*(1-alpha);
-                }
-                if (percent >= 12.5 * 6)
-                {
-                    if (center.y - y > frameOut.rows)
-                        continue;
-                    data = frameOut.ptr<uchar>(center.y - y , center.x + -x); //7
-                    data[0] = color[0]*alpha + data[0]*(1-alpha);
-                    data[1] = color[1]*alpha + data[1]*(1-alpha);
-                    data[2] = color[2]*alpha + data[2]*(1-alpha);
-                }
-                if (percent >= 12.5 * 7)
-                {
-                    if (center.y - x > frameOut.rows)
-                        continue;
-                    data = frameOut.ptr<uchar>(center.y - x , center.x + -y); //8
-                    data[0] = color[0]*alpha + data[0]*(1-alpha);
-                    data[1] = color[1]*alpha + data[1]*(1-alpha);
-                    data[2] = color[2]*alpha + data[2]*(1-alpha);
-                }
+                
             }
         }
     }
