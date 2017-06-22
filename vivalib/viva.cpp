@@ -120,8 +120,8 @@ void Processor::mouseCallback(int event, int x, int y, int flags, void *ptr)
 
 void Processor::run()
 {
-    
-    int FLAGS = CV_GUI_NORMAL | CV_WINDOW_AUTOSIZE;
+    int FLAGS = CV_GUI_EXPANDED | CV_WINDOW_KEEPRATIO;    
+//    int FLAGS = CV_GUI_NORMAL | CV_WINDOW_AUTOSIZE;
     
     if (_showInput)
         namedWindow(_inputWindowName,FLAGS);
@@ -250,7 +250,9 @@ void BatchProcessor::mouseCallback(int event, int x, int y, int flags, void *ptr
 void BatchProcessor::run()
 {
     
-    int FLAGS = CV_GUI_NORMAL | CV_WINDOW_AUTOSIZE;
+    int FLAGS = CV_GUI_EXPANDED | CV_WINDOW_KEEPRATIO;
+//    int FLAGS = CV_GUI_NORMAL | CV_WINDOW_AUTOSIZE
+
     
     if (_showInput)
         namedWindow(_inputWindowName,FLAGS);

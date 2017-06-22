@@ -1,5 +1,4 @@
-/***mages.push_back("./input/cup_c2/(1).png");
-***********************************************************************************************
+/**************************************************************************************************
  **************************************************************************************************
  
      BSD 3-Clause License (https://www.tldrlegal.com/l/bsd3)
@@ -33,8 +32,8 @@
  **************************************************************************************************/
 
 #include "objectdetector.h"
-#include <stdio.h>
-#include <sstream>  
+
+  
 string int2str( int val );
 int str2int( const string &val );
 
@@ -46,83 +45,58 @@ int main(int argc, const char * argv[])
 {
     int i;
     char str[50];
-
+    
     vector<string> images;
     Feat::Code feat;
     Desc::Code desc;
-    //images.push_back("model.bmp");
-	if (argc != 9){
-	    printf("\nUsage:\n\t./detection3D <Feat> <Desc> <imgs.folder> <img.amount> <img.type> <webcam.width> <webam.height> <outputvideo.name>\n\t./detection3D ORB FREAK ./input/example/ 8 png 2304 1536 demo.avi\n\tFeat:\t1:ORB\t2:FAST\t3:MSER\t4:SIFT\t5:SURF\t6:STAR\t7:GRIDFAST\t8:GRIDORB\t9:RFAST\tDefault:RFAST\n\tDesc:\t1:ORB\t2:BRIEF\t3:SIFT\t4:SURF\t5:FREAK\t6:BRISK\tDefault:BRIEF\n");
+    if (argc != 9){
+	printf("\nUsage:\n\t./detection3D <Feat> <Desc> <imgs.folder> <img.amount> <img.type> <webcam.width> <webam.height> <outputvideo.name>\n\t./detection3D RFAST BRIEF ./input/example/ 23 png 2304 1536 demo.avi\n\tFeat:ORB,FAST,MSER,SIFT,SURF,STAR,GRIDFAST,GRIDORB,RFAST,Default:RFAST\n\tDesc:ORB,BRIEF,SIFT,SURF,FREAK,BRISK,Default:BRIEF\n");
 	    return EXIT_FAILURE;
 	}
-    sprintf(str,"%s",argv[1]);
-    switch( str )
-    {
-        case '1':
-	    feat = Feat::ORB;
-	    break;          
-	case '2':
-	    feat = Feat::FAST;
-            break;
-	case '3':
-            feat = Feat::MSER;
-            break;
-        case '4':
-            feat = Feat::SIFT;
-            break;
-        case '5':
-            feat = Feat::SURF;
-            break;
-        case '6':
-            feat = Feat::STAR;
-            break;
-        case '7':
-            feat = Feat::GRIDFAST;
-            break;
-        case '8':
-            feat = Feat::GRIDORB;
-            break;
-        case '9':
-            feat = Feat::RFAST;
-            break;
-        default:
-            feat = Feat::RFAST;
-    }
-    sprintf(str,"%s",argv[2]);
-    switch(str )
-    {
-        case 1:
-            desc = Desc::ORB;
-            break;
-        case 2:
-            desc = Desc::BRIEF;
-            break;
-        case 3:
-            desc = Desc::SIFT;
-            break;
-        case 4:
-            desc = Desc::SURF;
-            break;
-        case 5:
-            desc = Desc::FREAK;
-            break;
-        case '6':
-            desc = Desc::BRISK;
-            break;
-        default:
-            desc = Desc::BRIEF;
-    }
+        
+    if (strcmp(argv[1],"ORB")==0)
+	feat = Feat::ORB;          
+    else if (strcmp(argv[1],"FAST")==0||strcmp(argv[1],"fast")==0)
+	feat = Feat::FAST;
+    else if (strcmp(argv[1],"MSER")==0||strcmp(argv[1],"mser")==0)
+        feat = Feat::MSER;
+    else if (strcmp(argv[1],"SIFT")==0||strcmp(argv[1],"sift")==0)
+        feat = Feat::SIFT;
+    else if (strcmp(argv[1],"SURF")==0||strcmp(argv[1],"surf")==0)
+        feat = Feat::SURF;
+    else if (strcmp(argv[1],"STAR")==0||strcmp(argv[1],"star")==0)
+        feat = Feat::STAR;
+    else if (strcmp(argv[1],"GRIDFAST")==0||strcmp(argv[1],"gridfast")==0)
+        feat = Feat::GRIDFAST;
+    else if (strcmp(argv[1],"GRIDORB")==0||strcmp(argv[1],"gridorb")==0)
+        feat = Feat::GRIDORB;
+    else if (strcmp(argv[1],"RFAST")==0||strcmp(argv[1],"rfast")==0)
+        feat = Feat::RFAST;
+    else
+        feat = Feat::RFAST;
 
+    if(strcmp(argv[2],"ORB")==0||strcmp(argv[2],"orb")==0)
+	desc = Desc::ORB;
+    else if (strcmp(argv[2],"BRIEF")==0||strcmp(argv[2],"brief")==0)
+        desc = Desc::BRIEF;
+    else if (strcmp(argv[2],"SIFT")==0||strcmp(argv[2],"sift")==0)
+        desc = Desc::SIFT;
+    else if (strcmp(argv[2],"SURF")==0||strcmp(argv[2],"surf")==0)
+        desc = Desc::SURF;
+    else if (strcmp(argv[2],"FREAK")==0||strcmp(argv[2],"freak")==0)
+        desc = Desc::FREAK;
+    else if (strcmp(argv[2],"BRISK")==0||strcmp(argv[2],"brisk")==0)
+        desc = Desc::BRISK;
+    else
+        desc = Desc::BRIEF;
 
-//    Feat::Code feat = Feat::RFAST;
-//    Desc::Code desc = Desc::BRIEF;
-    for(i=1;i<str2int(argv[4]);i++)
+//    feat = Feat::RFAST;
+//    desc = Desc::BRIEF;
+    for(i=1;i<=str2int(argv[4]);i++)
     {
 	sprintf(str,"%s%d.%s",argv[3],i,argv[5]);
 	images.push_back(str);
     }
-
-
 
 //    images.push_back("./input/cup_c2/(1).png");
 //    images.push_back("./input/cup_c2/(2).png");
@@ -257,7 +231,6 @@ int main(int argc, const char * argv[])
     
 
     Ptr<Input> input = new CameraInput(0, Size(str2int(argv[6]),str2int(argv[7])));
-
     Ptr<ProcessFrame> process = new ObjectDetector(images, feat, desc);
     sprintf(str,"%s",argv[8]);
     Ptr<Output> output = new VideoOutput(str,Size(str2int(argv[6]),str2int(argv[7])));
@@ -268,7 +241,7 @@ int main(int argc, const char * argv[])
     processor.setProcess(process);
     processor.setOutput(output);
     processor.run();
-    
+
     return 0;
 }
 string int2str( int val )  

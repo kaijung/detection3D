@@ -193,7 +193,7 @@ namespace viva {
         _functor(nullptr),
         _inputWindowName("Input"),
         _outputWindowName("Process Output"),
-        _showInput(false),
+        _showInput(true),
         _showOutput(true),
         _mListener(false),
         _kListener(false),
@@ -301,7 +301,7 @@ namespace viva {
         
     public:
         
-        BatchProcessor(size_t batchSize = 10):
+        BatchProcessor(size_t batchSize = 15)://15
         _batchSize(batchSize),
         _input(new CameraInput(0)),
         _batch_process(new BatchProcessFrame(_batchSize)),
@@ -309,12 +309,12 @@ namespace viva {
         _batch_functor(nullptr),
         _inputWindowName("Input"),
         _outputWindowName("Process Output"),
-        _showInput(false),
+        _showInput(true),//false
         _showOutput(true),
         _mListener(false),
         _kListener(false),
-        _inputBufferSize(10),
-        _outputBufferSize(10),
+        _inputBufferSize(10),//10
+        _outputBufferSize(10),//10
         _showTimeInfo(false)
         {}
         
@@ -368,8 +368,7 @@ namespace viva {
         void setBatchProcess(Ptr<BatchProcessFrame> &process)
         {
             _batch_process = process;
-        }
-        
+        }        
         void setBatchProcess(function<void(const size_t frameN, const vector<Mat> &frames, Mat &output)> functor)
         {
             _batch_functor = functor;

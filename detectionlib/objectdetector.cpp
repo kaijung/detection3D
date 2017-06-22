@@ -47,7 +47,7 @@ classifiers(images.size()), filter(4), percent(0), faces(images.size())
 
 	double fov = 37;//視角
 	int numViewPoints = 1000;
-	int numKeyPointsPerViewPoint = 70;
+	int numKeyPointsPerViewPoint = 200;//70;
 
 
 	ViewParams params(fov,
@@ -127,7 +127,7 @@ void toRGB(const Mat &frame, Mat &rgb)
 void ObjectDetector::operator()(const size_t frame_number, const Mat &frameInput, Mat &frameOut)
 {
 
-	//    clock_t A = clock();
+	clock_t A = clock();
 	vector<Point2f> corners;//找角
 	Mat frame;
 	toRGB(frameInput, frameOut);
@@ -151,12 +151,12 @@ void ObjectDetector::operator()(const size_t frame_number, const Mat &frameInput
 	vector<vector<KeyPoint> > keypoints;
 	vector<vector<uint16_t> > indices;
 	vector<Mat> descriptors;
-	//    clock_t B = clock();
+	clock_t B = clock();
 	//    featDetector->detect(frames, keypoints);
 	featDetector->detect(frames, keypoints, masks);
-	//    clock_t C = clock();
+	clock_t C = clock();
 	descExtractor->compute(frames, keypoints, descriptors);
-	//    clock_t D = clock();
+	clock_t D = clock();
 
 
 	//做match分類
@@ -188,7 +188,7 @@ void ObjectDetector::operator()(const size_t frame_number, const Mat &frameInput
 			possibleObjectView = true;
 		}
 	}
-	//    clock_t E = clock();//上色
+	clock_t E = clock();//上色
 	Scalar purple(255, 0, 255);
 	Scalar red(0, 0, 255);
 	Scalar blue(255, 0, 0);
@@ -223,7 +223,7 @@ void ObjectDetector::operator()(const size_t frame_number, const Mat &frameInput
 			FernUtils::drawObject(frameOut, corners, purple, blue, shift, percent);//朝上與旋轉//////////////////////畫紫
 			FernUtils::drawCorners(frameOut, corners, green, shift);//邊框//////////////////////////////////////
 			rect = boundingRect(corners);
-			//rectangle(frameOut, rect.tl(), rect.br(), blue, 4);
+			rectangle(frameOut, rect.tl(), rect.br(), blue, 4);
 			stringstream ss;
 			ss << "Object View Detected: " << (idx + 1);//第idx+1張圖
 			putText(frameOut, ss.str(), Point(40, 30), FONT_HERSHEY_DUPLEX, 1, blue);
@@ -237,7 +237,7 @@ void ObjectDetector::operator()(const size_t frame_number, const Mat &frameInput
 			{
 				corners = filter.predict();
 				rect = boundingRect(corners);
-				//rectangle(frameOut, rect.tl(), rect.br(), blue, 4);
+				rectangle(frameOut, rect.tl(), rect.br(), blue, 4);
 				FernUtils::drawObject(frameOut, corners, purple, blue, shift, percent);//朝上與旋轉//////////////////////
 				FernUtils::drawCorners(frameOut, corners, green, shift);//邊框//////////////////////////////////////
 			}
@@ -247,20 +247,18 @@ void ObjectDetector::operator()(const size_t frame_number, const Mat &frameInput
 	}
 	if (lastKnowCorners.size() == 4)
 		filter.correct(lastKnowCorners);
-
-	//    clock_t FE = clock();
-
-	//    printf("Pre: %.2f (%.2f) Detect: %.2f (%.2f) Extract: %.2f (%.2f) Match: %.2f (%.2f) R+K: %.2f (%.2f)\n",
-	//           double(B-A)/CLOCKS_PER_SEC,
-	//           1.0/(double(B-A)/CLOCKS_PER_SEC),
-	//           double(C-B)/CLOCKS_PER_SEC,
-	//           1.0/(double(C-B)/CLOCKS_PER_SEC),
-	//           double(D-C)/CLOCKS_PER_SEC,
-	//           1.0/(double(D-C)/CLOCKS_PER_SEC),
-	//           double(E-D)/CLOCKS_PER_SEC,
-	//           1.0/(double(E-D)/CLOCKS_PER_SEC),
-	//           double(FE-E)/CLOCKS_PER_SEC,
-	//           1.0/(double(FE-E)/CLOCKS_PER_SEC));
+	clock_t FE = clock();
+	printf("Pre: %.2f (%.2f) Detect: %.2f (%.2f) Extract: %.2f (%.2f) Match: %.2f (%.2f) R+K: %.2f (%.2f)\n",
+	        double(B-A)/CLOCKS_PER_SEC,
+		1.0/(double(B-A)/CLOCKS_PER_SEC),
+		double(C-B)/CLOCKS_PER_SEC,
+		1.0/(double(C-B)/CLOCKS_PER_SEC),
+		double(D-C)/CLOCKS_PER_SEC,
+		1.0/(double(D-C)/CLOCKS_PER_SEC),
+		double(E-D)/CLOCKS_PER_SEC,
+		1.0/(double(E-D)/CLOCKS_PER_SEC),
+		double(FE-E)/CLOCKS_PER_SEC,
+		1.0/(double(FE-E)/CLOCKS_PER_SEC));
 
 	frames.clear();
 	masks.clear();
